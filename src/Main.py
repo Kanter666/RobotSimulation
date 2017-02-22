@@ -38,7 +38,7 @@ class Simulation(ShowBase):
         base.setBackgroundColor(0.1, 0.1, 0.8, 1)
         base.setFrameRateMeter(True)
 
-        base.cam.setPos(0, -20, 4)
+        base.cam.setPos(0, -150, 200)
         base.cam.lookAt(0, 0, 0)
 
         # Light
