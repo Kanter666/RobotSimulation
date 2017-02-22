@@ -2,47 +2,48 @@ from src.VehicleModel import Vehicle
 from math import acos
 from math import sqrt
 from math import pi
+import time
 
 
-#function that takes XY values of point and a vehicle and navigates vehicle to that point
-def goTo(finalPos, vehicle):
-    print('Start of goTo function')
-    currentPos = vehicle.getPosXYZ()
+#function for following vehicle
+#algorithm is basically the same as in MoveTo, only final location is not static but it is current location of followed vehicle
+def follow(follower, followedVehicle):
+    print('Start of follow function')
 
-    #main loop that directs vehicle to the final point
-    while((currentPos[0]>(finalPos[0]+3) or currentPos[0]<(finalPos[0]-3)) or (currentPos[1]>(finalPos[1]+3) or currentPos[1]<(finalPos[1]-3))):
-        #gets current data of vehicle
-        currentPos = vehicle.getPosXYZ()
-        currentDir = vehicle.getDirection()
+    #main loop that directs vehicle to the followed vehicle, runs forever
+    while(True):
+        #gets current data of vehicles
+        currentPos = follower.getPosXYZ()
+        currentDir = follower.getDirection()
+        finalPos = followedVehicle.getPosXYZ()
 
         #calculates vector to the final position
         routeVector = [finalPos[0] - currentPos[0], finalPos[1] - currentPos[1]]
 
         angleLeft = angle(currentDir, routeVector)
-        currentSteering = vehicle.getAngle()
+        currentSteering = follower.getAngle()
         dt = globalClock.getDt()
         #deciding where to turn - and if it should change steering
         if(angleLeft<0):
             if(angleLeft<currentSteering):
-                vehicle.setAngle(False, dt)
+                follower.setAngle(False, dt)
             else:
-                vehicle.setAngle(True, dt)
+                follower.setAngle(True, dt)
         else:
             if (angleLeft > currentSteering):
-                vehicle.setAngle(True, dt)
+                follower.setAngle(True, dt)
             else:
-                vehicle.setAngle(False, dt)
+                follower.setAngle(False, dt)
 
         distance = sqrt((routeVector[0] ** 2)+(routeVector[1] ** 2))
         #setting motor power
-        if(distance>25):
-            vehicle.setEngineForce(1100)
+        if(distance>15):
+            follower.setEngineForce(1000)
         else:
-            vehicle.setEngineForce(600)
+            follower.setEngineForce(0)
+            follower.setBrakeForce(200)
+        time.sleep(0.01)
 
-    vehicle.setEngineForce(0)
-    print('found right position', finalPos, currentPos)
-    vehicle.setBrakeForce(200)
 
 #part that calculates angle
 # - means angle is clockwise

@@ -2,6 +2,7 @@
 # loadPrcFileData('', 'load-display tinydisplay')
 from src.VehicleModel import Vehicle
 from src.MoveTo import goTo
+from src.FollowVehicle import follow
 
 import sys
 import _thread as thread
@@ -135,7 +136,7 @@ class Simulation(ShowBase):
         # Filename:
         # small ->  'Maps/HeightMapSmall.png'
         # big   ->  'Maps/HeightMapBig.png'
-        img = PNMImage(Filename('Maps/HeightMapBig.png'))
+        img = PNMImage(Filename('Maps/HeightMapSmall.png'))
         shape = BulletHeightfieldShape(img, self.height, ZUp)
         shape.setUseDiamondSubdivision(True)
 
@@ -151,7 +152,7 @@ class Simulation(ShowBase):
         #big   ->   'Maps/TextureMapBig.jpg'
         self.terrain = GeoMipTerrain('terrain')
         self.terrain.setHeightfield(img)
-        self.terrain.setColorMap('Maps/TextureMapBig.jpg')
+        self.terrain.setColorMap('Maps/TextureMapSmall.jpg')
         self.terrain.setBruteforce(True)  # level of detail
 
         self.terrain.setBlockSize(32)
@@ -170,15 +171,22 @@ class Simulation(ShowBase):
         self.makeMapBorders(offset)
         self.terrain.generate()
 
+        # creating vehicles
+        #controlled vehicles
         self.controlVehicles = []
         self.controlVehicles.append(Vehicle(0, 00, 40, "B", self.worldNP, self.world))
 
-        # creating vehicles
+        #vehicles goint to a specific point
         self.vehicles = []
         self.vehicles.append(Vehicle(0, 50, 40, "G", self.worldNP, self.world))
-
         thread.start_new_thread(goTo, ([100, -30], self.vehicles[0]))
 
+        #vehicles following user
+        self.followVehicles = []
+        self.followVehicles.append(Vehicle(-offset+10, -offset+10, 40, "R", self.worldNP, self.world))
+        self.followVehicles.append(Vehicle(offset-10, offset-10, 60, "R", self.worldNP, self.world))
+        for veh in self.followVehicles:
+            thread.start_new_thread(follow, (veh, self.controlVehicles[0]))
     #Borders around the map that vehicles won't fall from terrain
     def makeMapBorders(self, offset):
         plane1 = BulletPlaneShape(Vec3(1, 0, 0), 0)
@@ -208,5 +216,5 @@ class Simulation(ShowBase):
 
 
 
-game = Simulation()
+sim = Simulation()
 run()
