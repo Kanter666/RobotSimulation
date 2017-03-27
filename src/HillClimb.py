@@ -5,16 +5,16 @@ from math import sqrt
 from math import pi
 import time
 
-#TODO implement map and algorithm to find highest point in enviroment(or at least local max)
+#TODO implement check if is vehicle stuck in one place(other than top)
 def blindClimb(vehicle):
     print('Start of follow function')
 
-    time.sleep(10)
+    time.sleep(5)
     top = vehicle.getPosXYZ()
     print("top: ", top)
 
+    #exploration at the start
     for i in range(0,100):
-        print("Going nowhere")
         vehicle.setEngineForce(1000)
         dt = globalClock.getDt()
         if(random()>0.5):
@@ -29,7 +29,7 @@ def blindClimb(vehicle):
             top = currentPos
         time.sleep(0.01*i)
 
-    # main loop that directs vehicle to the followed vehicle, runs forever
+    # main loop that directs vehicle to the top (or random place)
     while (True):
         # gets current data of vehicles
         currentPos = vehicle.getPosXYZ()
@@ -72,8 +72,8 @@ def blindClimb(vehicle):
             else:
                 vehicle.setEngineForce(600)
         else:
-            print("Going to fake top")
-            fakeTop = [top[0]+uniform(0.01, 3.5),top[0]+uniform(0.01, 3.5),top[0]+uniform(0.01, 3.5)]
+            #goes to random destination
+            fakeTop = [top[0]+uniform(0.01, 13.5),top[0]+uniform(0.01, 13.5),top[0]+uniform(0.01, 13.5)]
             # calculates vector to the final position
             routeVector = [fakeTop[0] - currentPos[0], fakeTop[1] - currentPos[1]]
 
