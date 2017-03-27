@@ -108,9 +108,6 @@ class Simulation(ShowBase):
             vehicle.setEngineForce(engineForce)
             vehicle.setBrakeForce(brakeForce)
 
-            pos = vehicle.getPosXYZ()
-            print(pos)
-
 
             #print(vehicle.getAngle())
 
