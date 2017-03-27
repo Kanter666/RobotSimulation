@@ -3,6 +3,7 @@
 from src.VehicleModel import Vehicle
 from src.MoveTo import goTo
 from src.FollowVehicle import follow
+from src.HillClimb import blindClimb
 
 import sys
 import _thread as thread
@@ -107,6 +108,9 @@ class Simulation(ShowBase):
             vehicle.setEngineForce(engineForce)
             vehicle.setBrakeForce(brakeForce)
 
+            pos = vehicle.getPosXYZ()
+            print(pos)
+
 
             #print(vehicle.getAngle())
 
@@ -177,16 +181,30 @@ class Simulation(ShowBase):
         self.controlVehicles.append(Vehicle(0, 00, 40, "B", self.worldNP, self.world))
 
         #vehicles goint to a specific point
-        self.vehicles = []
-        self.vehicles.append(Vehicle(0, 50, 40, "G", self.worldNP, self.world))
-        thread.start_new_thread(goTo, ([100, -30], self.vehicles[0]))
+        #self.squareVeh = Vehicle(0, 50, 40, "G", self.worldNP, self.world)
+        #thread.start_new_thread(self.goSquare, (self.squareVeh, 100))
 
         #vehicles following user
-        self.followVehicles = []
-        self.followVehicles.append(Vehicle(-offset+10, -offset+10, 40, "R", self.worldNP, self.world))
-        self.followVehicles.append(Vehicle(offset-10, offset-10, 60, "R", self.worldNP, self.world))
-        for veh in self.followVehicles:
-            thread.start_new_thread(follow, (veh, self.controlVehicles[0]))
+        #self.followVehicles = []
+        #self.followVehicles.append(Vehicle(-offset+10, -offset+10, 40, "R", self.worldNP, self.world))
+        #self.followVehicles.append(Vehicle(offset-10, offset-10, 60, "R", self.worldNP, self.world))
+        #for veh in self.followVehicles:
+        #    thread.start_new_thread(follow, (veh, self.controlVehicles[0]))
+
+        #vehicles for hill climbing
+        self.hillVehicles = []
+        self.hillVehicles.append(Vehicle(-offset+10, -offset+10, 40, "R", self.worldNP, self.world))
+        self.hillVehicles.append(Vehicle(offset-10, offset-10, 60, "R", self.worldNP, self.world))
+        for veh in self.hillVehicles:
+           thread.start_new_thread(blindClimb, (veh,))
+    #function that navigates a vehicle to go in a square
+    def goSquare(self, vehicle, size):
+        while(True):
+            goTo([size, size], vehicle)
+            goTo([size, -size], vehicle)
+            goTo([-size, -size], vehicle)
+            goTo([-size, size], vehicle)
+
     #Borders around the map that vehicles won't fall from terrain
     def makeMapBorders(self, offset):
         plane1 = BulletPlaneShape(Vec3(1, 0, 0), 0)
@@ -214,6 +232,9 @@ class Simulation(ShowBase):
         np.setCollideMask(BitMask32.allOn())
         self.world.attachRigidBody(np.node())
 
+    #getting height of map at some point
+    def getHeight(self):
+        line = CollisionLine(ox, oy, oz, dx, dy, dz)
 
 
 sim = Simulation()
